@@ -35,13 +35,13 @@ grafo* criarGrafo(int v){
 
 void addAresta(grafo* g, int origem, int destino, int direcionado){
 //origem para destino
-    no* novoNo = criarNo(destino);
+    no* novoNo = criarNo(destino+1);
     novoNo->prox = g->listaAdj[origem];
     g->listaAdj[origem] = novoNo;
 //destino para origem
     if (!direcionado)
     {
-        novoNo = criarNo(origem);
+        novoNo = criarNo(origem+1);
         novoNo->prox = g->listaAdj[destino];
         g->listaAdj[destino] = novoNo;
     }
@@ -62,24 +62,48 @@ void imprimirGrafo(grafo* g){
 int main() {
 //lendo o arquivo
     int atual, alvo, n;
-    if (scanf("%d", &atual) == 0) {
-        printf("Erro ao ler o arquivo\n");
+
+    if (scanf("%d %d %d", &atual, &alvo, &n) != 3) {
+        printf("Erro ao ler os dados\n");
     }
-    if (scanf("%d", &alvo) == 0) {
-        printf("EErro ao ler o arquivo\n");
+
+    int canalAdulto[NCANAIS];
+    for (int i = 0; i < NCANAIS; i++)
+    {
+        canalAdulto[i] = 0;
     }
-    if (scanf("%d", &n) == 0) {
-        printf("Erro ao ler o arquivo\n");
-    }
-    while (getchar() != '\n' && !feof(stdin));
-    int canaisAd[n];
     for (int i = 0; i < n; i++)
     {
-        if (scanf("%d", &canaisAd[i]) == 0) {
-            printf("Erro ao ler o arquivo\n");
+        int temp = 0;
+        if (scanf("%d", &temp) == 0) {
+            printf("Erro ao ler os dados\n");
         }
+        canalAdulto[temp-1] = 1;
     }
 //criando o grafo
+    grafo *canais = criarGrafo(NCANAIS);
+    for (int i = 1; i <= NCANAIS; i++)
+    {
+        if (!canalAdulto[i-1])
+        {
+            int dobro = (2*i)-1, triplo = (3*i) - 1;
+        //Botões +1 e -1
+            if (!canalAdulto[i])
+            {
+                addAresta(canais, i-1, i, 0);
+            }
+        //Botões *2 e /2
+            if (dobro <= NCANAIS && !canalAdulto[dobro])
+            {
+                addAresta(canais, i-1, dobro, 0);
+            }
+        //Botão *3
+            if (triplo <= NCANAIS && !canalAdulto[triplo])
+            {
+                addAresta(canais, i-1, triplo, 1);
+            }
+        }
+    }
     
 //algoritmo para determinar a distancia entre o canal atual e o canal desejado
     return 0;
