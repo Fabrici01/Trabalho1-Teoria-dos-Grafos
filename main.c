@@ -1,12 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "./header/fila.h"
 #define NCANAIS 100
-
-typedef struct No
-{
-    int vertice;
-    struct No *prox;
-}no;
 
 typedef struct Grafo
 {
@@ -67,12 +62,68 @@ void imprimirGrafo(grafo* g){
         while (temp)
         {
             printf("%d -> ", temp->vertice);
-            temp = temp->prox; // <<< Adicionado
+            temp = temp->prox;
         }
         printf("NULL\n");
     }
 }
 
+void imprimirCaminho(int origem, int destino, int *antecessor) {
+    if (destino == origem) {
+        printf("%d", origem);
+        return;
+    }
+    imprimirCaminho(origem, antecessor[destino-1], antecessor);
+    printf(" -> %d", destino);
+}
+
+void buscaLargura(grafo *g, int origem, int destino) {
+    fila *f = criarFila();
+    int *visitado = (int*) calloc(NCANAIS, sizeof(int));
+    int *antecessor = (int*) malloc(NCANAIS * sizeof(int));
+
+    if (!visitado) {
+        printf("Erro de alocacao no ponteiro visitado\n");
+        exit(EXIT_FAILURE);
+    }
+    if (!antecessor) {
+        printf("Erro de alocacao no ponteiro antecessor\n");
+        free(visitado);
+        exit(EXIT_FAILURE);
+    }
+
+    for (int i = 0; i < NCANAIS; i++) {
+        antecessor[i] = -1;
+    }
+
+    visitado[origem-1] = 1;
+    inserirNaFila(f, origem);
+    while (!filaVazia(f)) {
+        int atual = removerDaFila(f);
+
+        if (atual == destino) {
+            break;
+        }
+
+        no* temp = g->listaAdj[atual-1];
+        while (temp) {
+            int adj = temp->vertice;
+            if (!visitado[adj-1]) {
+                visitado[adj-1] = 1;
+                antecessor[adj-1] = atual;
+                inserirNaFila(f, adj);
+            }
+            temp = temp->prox;
+        }
+    }
+    liberarFila(f);
+    printf("\nMenor numeros de cliques de %d ate %d: \n", origem, destino);
+    imprimirCaminho(origem, destino, antecessor);
+    printf("\n");
+
+    free(visitado);
+    free(antecessor);
+}
 
 int main(int argc, char const *argv[])
 {
@@ -138,5 +189,6 @@ int main(int argc, char const *argv[])
     }
     imprimirGrafo(canais);
 //algoritmo para determinar a distancia entre o canal atual e o canal desejado
+    buscaLargura(canais, atual, alvo);
     return 0;
 }
