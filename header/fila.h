@@ -16,4 +16,4 @@ void inserirNaFila(fila* f, int v);
 int removerDaFila(fila* f);
 void liberarFila(fila* f);
 
-#endif //FILA_H
+#endif
