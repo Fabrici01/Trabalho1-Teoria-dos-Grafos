@@ -3,18 +3,32 @@
 #include "./header/fila.h"
 #include "./header/grafo.h"
 
-no* criarNo(int x){
-    no *novoNo = malloc(sizeof(no));
-    novoNo->vertice = x;
+no* criarNo(int v){
+    no *novoNo = (no*) malloc(sizeof(no));
+    if(novoNo == NULL)
+    {
+        printf("Erro na alocacao do no\n");
+        exit(1);
+    }
+    novoNo->vertice = v;
     novoNo->prox = NULL;
     return novoNo;
 }
 
 grafo* criarGrafo(int v){
-    grafo* g = malloc(sizeof(grafo));
+    grafo* g = (grafo*) malloc(sizeof(grafo));
+    if (g == NULL)
+    {
+        printf("Erro na alocacao do grafo\n");
+        exit(1);
+    }
     g->numVertices = v;
-    g->listaAdj  = malloc(v * sizeof(no*));
-
+    g->listaAdj  = (no**) malloc(v * sizeof(no*));
+    if (g->listaAdj == NULL)
+    {
+        printf("Erro na alocacao da lista de adjacencia\n");
+        exit(1);
+    }
     for (int i = 0; i < v; i++)
     {
         g->listaAdj[i] = NULL;
@@ -23,9 +37,12 @@ grafo* criarGrafo(int v){
 }
 
 int existeAresta(no* inicio, int destino) {
-    while (inicio != NULL) {
+    while (inicio != NULL) 
+    {
         if (inicio->vertice == destino)
+        {
             return 1;
+        }
         inicio = inicio->prox;
     }
     return 0;
@@ -33,14 +50,17 @@ int existeAresta(no* inicio, int destino) {
 
 void addAresta(grafo* g, int origem, int destino, int direcionado){
 //origem para destino
-    if (!existeAresta(g->listaAdj[origem], destino + 1)) {
+    if (!existeAresta(g->listaAdj[origem], destino + 1)) 
+    {
         no* novoNo = criarNo(destino + 1);
         novoNo->prox = g->listaAdj[origem];
         g->listaAdj[origem] = novoNo;
     }
 //destino para origem
-    if (!direcionado) {
-        if (!existeAresta(g->listaAdj[destino], origem + 1)) {
+    if (!direcionado) 
+    {
+        if (!existeAresta(g->listaAdj[destino], origem + 1)) 
+        {
             no* novoNo = criarNo(origem + 1);
             novoNo->prox = g->listaAdj[destino];
             g->listaAdj[destino] = novoNo;
@@ -48,23 +68,9 @@ void addAresta(grafo* g, int origem, int destino, int direcionado){
     }
 }
 
-void imprimirGrafo(grafo* g){
-    printf("\n");
-    for (int i = 0; i < g->numVertices; i++)
-    {
-        no* temp = g->listaAdj[i];
-        printf("Canal %d: ", i+1);
-        while (temp)
-        {
-            printf("%d -> ", temp->vertice);
-            temp = temp->prox;
-        }
-        printf("NULL\n");
-    }
-}
-
 void imprimirCaminho(int origem, int destino, int *antecessor) {
-    if (destino == origem) {
+    if (destino == origem) 
+    {
         printf("%d", origem);
         return;
     }
@@ -72,40 +78,45 @@ void imprimirCaminho(int origem, int destino, int *antecessor) {
     printf(" -> %d", destino);
 }
 
-void buscaLargura(grafo *g, int tamanho, int origem, int destino) {
+void buscaLargura(grafo *g, int origem, int destino) {
     fila *f = criarFila();
-    int *visitado = (int*) calloc(tamanho, sizeof(int));
-    int *antecessor = (int*) malloc(tamanho * sizeof(int));
-
-    if (!visitado) {
+    int *visitado = (int*) calloc(g->numVertices, sizeof(int));
+    if (!visitado) 
+    {
         printf("Erro de alocacao no ponteiro visitado\n");
-        exit(EXIT_FAILURE);
+        liberarFila(f);
+        exit(1);
     }
-    if (!antecessor) {
+    int *antecessor = (int*) malloc(g->numVertices * sizeof(int));
+    if (!antecessor) 
+    {
         printf("Erro de alocacao no ponteiro antecessor\n");
+        liberarFila(f);
         free(visitado);
-        exit(EXIT_FAILURE);
+        exit(1);
     }
-
     int cliques = 0;
-
-    for (int i = 0; i < tamanho; i++) {
+    for (int i = 0; i < g->numVertices; i++) 
+    {
         antecessor[i] = -1;
     }
-
     visitado[origem-1] = 1;
     inserirNaFila(f, origem);
-    while (!filaVazia(f)) {
+    while (!filaVazia(f)) 
+    {
         int atual = removerDaFila(f);
 
-        if (atual == destino) {
+        if (atual == destino) 
+        {
             break;
         }
 
         no* temp = g->listaAdj[atual-1];
-        while (temp) {
+        while (temp) 
+        {
             int adj = temp->vertice;
-            if (!visitado[adj-1]) {
+            if (!visitado[adj-1]) 
+            {
                 visitado[adj-1] = 1;
                 antecessor[adj-1] = atual;
                 inserirNaFila(f, adj);
@@ -114,13 +125,30 @@ void buscaLargura(grafo *g, int tamanho, int origem, int destino) {
         }
     }
     liberarFila(f);
-    for (int i = destino; i != origem; i = antecessor[i-1]) {
+    for (int i = destino; i != origem; i = antecessor[i-1]) 
+    {
         cliques++;
     }
     printf("\nMenor numeros de cliques de %d ate %d: %d\n", origem, destino, cliques);
     imprimirCaminho(origem, destino, antecessor);
     printf("\n");
-
     free(visitado);
     free(antecessor);
+}
+
+void liberarGrafo(grafo *g){
+    if (g != NULL)
+    {
+        no *p, *temp;
+        for (int i = 0; i < g->numVertices; i++)
+        {
+            for (p = g->listaAdj[i]; p != NULL; p = temp)
+            {
+                temp = p->prox;
+                free(p);
+            }
+        }
+        free(g->listaAdj);
+        free(g);
+    }
 }

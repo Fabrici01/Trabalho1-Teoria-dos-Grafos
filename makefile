@@ -1,4 +1,4 @@
-all: compila executa
+all: compila
 
 compila: main.o fila.o grafo.o
 	gcc main.o fila.o grafo.o -o prog
@@ -12,8 +12,5 @@ fila.o: fila.c
 grafo.o: grafo.c 
 	gcc -c grafo.c
 
-executa:
-	prog.exe < arquivo.txt
-
 clean:
-	del main.o fila.o grafo.o prog.exe
+	rm -f main.o fila.o grafo.o prog

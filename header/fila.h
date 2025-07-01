@@ -1,10 +1,6 @@
 #ifndef FILA_H
 #define FILA_H
-
-typedef struct No{
-    int vertice;
-    struct No *prox;
-}no;
+#include "./grafo.h"
 
 typedef struct Fila{
     no *inicio, *fim;

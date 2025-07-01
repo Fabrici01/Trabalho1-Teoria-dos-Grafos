@@ -5,7 +5,7 @@
 fila* criarFila(){
     fila *f = (fila*)malloc(sizeof(fila));
     if(f==NULL){
-        printf("ERRO\n");
+        printf("Erro na alocacao da fila\n");
         exit(1);
     }
     f->inicio = f->fim = NULL;
@@ -17,13 +17,7 @@ int filaVazia(fila* f){
 }
 
 void inserirNaFila(fila* f, int v){
-    no *novo = (no*)malloc(sizeof(no));
-    if(novo == NULL){
-        printf("ERRO\n");
-        exit(1);
-    }
-    novo->vertice = v;
-    novo->prox = NULL;
+    no *novo = criarNo(v);
     if(filaVazia(f)){
         f->inicio = novo;
     }
