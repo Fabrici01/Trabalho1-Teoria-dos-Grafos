@@ -108,6 +108,10 @@ void buscaLargura(grafo *g, int origem, int destino) {
 
         if (atual == destino) 
         {
+            for (int i = destino; i != origem; i = antecessor[i-1]) 
+            {
+                cliques++;
+            }
             break;
         }
 
@@ -125,10 +129,6 @@ void buscaLargura(grafo *g, int origem, int destino) {
         }
     }
     liberarFila(f);
-    for (int i = destino; i != origem; i = antecessor[i-1]) 
-    {
-        cliques++;
-    }
     if (cliques != 0)
     {
         printf("\nMenor numeros de cliques de %d ate %d: %d\n", origem, destino, cliques);
@@ -136,10 +136,8 @@ void buscaLargura(grafo *g, int origem, int destino) {
     }
     else
     {
-        printf("Impossivel chegar ao canal desejado sem passar poum canal adulto");
+        printf("Impossivel chegar ao canal desejado sem passar por um canal adulto");
     }
-    
-    
     printf("\n");
     free(visitado);
     free(antecessor);
