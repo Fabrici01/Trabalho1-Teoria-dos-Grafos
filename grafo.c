@@ -129,8 +129,17 @@ void buscaLargura(grafo *g, int origem, int destino) {
     {
         cliques++;
     }
-    printf("\nMenor numeros de cliques de %d ate %d: %d\n", origem, destino, cliques);
-    imprimirCaminho(origem, destino, antecessor);
+    if (cliques != 0)
+    {
+        printf("\nMenor numeros de cliques de %d ate %d: %d\n", origem, destino, cliques);
+        imprimirCaminho(origem, destino, antecessor);
+    }
+    else
+    {
+        printf("Impossivel chegar ao canal desejado sem passar poum canal adulto");
+    }
+    
+    
     printf("\n");
     free(visitado);
     free(antecessor);
